@@ -160,8 +160,7 @@ import torch
 def compute_raw_attention_scores(query, key):
     """Compute raw attention scores Q @ K^T over the last two dimensions."""
     # TODO: matmul query with the transpose of key over the last two axes
-    scores = torch.matmul(query, key.transpose(-2, -1))
-    return scores
+    return torch.matmul(query, key.transpose(-2, -1))
 
 # Step 18 - scale_attention_scores (not yet solved)
 # TODO: implement
