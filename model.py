@@ -302,7 +302,9 @@ def merge_heads_and_project_output(context, w_o, b_o):
     
     context = merge_heads_back_to_model_dim(context)
 
-    return apply_linear_projection(context, w_o, b_o)
+    out = apply_linear_projection(context, w_o, b_o)
+
+    return out
 
 # Step 31 - assemble_multi_head_attention_forward (not yet solved)
 # TODO: implement
