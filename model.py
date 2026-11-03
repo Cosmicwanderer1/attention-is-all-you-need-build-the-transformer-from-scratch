@@ -291,7 +291,7 @@ def multi_head_scaled_dot_product_attention(q_h, k_h, v_h, mask=None):
     # TODO: run scaled dot-product attention over per-head Q, K, V and return (context, weights)
     
 
-    return scaled_dot_product_attention(q_h, k_h, v_h, mask=None)
+    return scaled_dot_product_attention(q_h, k_h, v_h, mask=mask)
 
 # Step 30 - merge_heads_and_project_output (not yet solved)
 # TODO: implement
