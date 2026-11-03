@@ -273,19 +273,25 @@ import torch
 def split_qkv_into_heads(q, k, v, num_heads):
     # TODO: split each of q, k, v into (B, num_heads, L, d_k) and return as a tuple
     
-    q_h = split_last_dim_into_heads(q, num_heads)
-    q = transpose_heads_before_sequence(q_h)
+    q = split_last_dim_into_heads(q, num_heads)
+    q_h = transpose_heads_before_sequence(q)
         
-    k_h = split_last_dim_into_heads(k, num_heads)
-    k = transpose_heads_before_sequence(k_h)
+    k = split_last_dim_into_heads(k, num_heads)
+    k_h = transpose_heads_before_sequence(k)
 
-    v_h = split_last_dim_into_heads(v, num_heads)
-    v = transpose_heads_before_sequence(v_h)
+    v = split_last_dim_into_heads(v, num_heads)
+    v_h = transpose_heads_before_sequence(v)
 
-    return q, k, v
+    return q_h, k_h, v_h
 
-# Step 29 - multi_head_scaled_dot_product_attention (not yet solved)
-# TODO: implement
+# Step 29 - multi_head_scaled_dot_product_attention
+import torch
+
+def multi_head_scaled_dot_product_attention(q_h, k_h, v_h, mask=None):
+    # TODO: run scaled dot-product attention over per-head Q, K, V and return (context, weights)
+    
+
+    return scaled_dot_product_attention(q_h, k_h, v_h, mask=None)
 
 # Step 30 - merge_heads_and_project_output (not yet solved)
 # TODO: implement
