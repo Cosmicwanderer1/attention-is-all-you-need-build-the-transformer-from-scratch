@@ -666,8 +666,51 @@ def init_encoder_layer_parameters(d_model, num_heads, d_ff):
         "ffn_beta": zeros((d_model,)),
     }
 
-# Step 53 - init_decoder_layer_parameters (not yet solved)
-# TODO: implement
+# Step 53 - init_decoder_layer_parameters
+import torch
+
+def init_decoder_layer_parameters(d_model, num_heads, d_ff):
+    # TODO: return a dict of requires_grad tensors for one decoder layer
+    
+    def rand(shape):
+        t = torch.randn(shape, dtype=torch.float32) * 0.02
+        t.requires_grad_(True)
+        return t
+      
+
+    def zeros(shape):
+        return torch.zeros(shape, dtype=torch.float32, requires_grad=True)
+
+    def ones(shape):
+        return torch.ones(shape, dtype=torch.float32, requires_grad=True)
+
+    return {
+        # 自注意力投影：随机权重，无 bias
+        "w_q_self": rand((d_model, d_model)),
+        "w_k_self": rand((d_model, d_model)),
+        "w_v_self": rand((d_model, d_model)),
+        "w_o_self": rand((d_model, d_model)),
+
+        # 交叉注意力投影：随机权重，无 bias
+        "w_q_cross": rand((d_model, d_model)),
+        "w_k_cross": rand((d_model, d_model)),
+        "w_v_cross": rand((d_model, d_model)),
+        "w_o_cross": rand((d_model, d_model)),
+
+        # FFN：权重随机，偏置为 0
+        "w1": rand((d_model, d_ff)),
+        "b1": zeros((d_ff,)),
+        "w2": rand((d_ff, d_model)),
+        "b2": zeros((d_model,)),
+
+        # 两个 LayerNorm 一个crossNorm：gamma=1, beta=0，不随机
+        "self_gamma": ones((d_model,)),
+        "self_beta": zeros((d_model,)),
+        "cross_gamma": ones((d_model,)),
+        "cross_beta": zeros((d_model,)),
+        "ffn_gamma": ones((d_model,)),
+        "ffn_beta": zeros((d_model,)),
+    }
 
 # Step 54 - init_embedding_and_projection_parameters (not yet solved)
 # TODO: implement
