@@ -738,8 +738,39 @@ def init_embedding_and_projection_parameters(vocab_size, d_model, tie_weights=Tr
         "output_projection": output_projection,
     }
 
-# Step 55 - collect_model_parameters_into_list (not yet solved)
-# TODO: implement
+# Step 55 - collect_model_parameters_into_list
+import torch
+
+def collect_model_parameters_into_list(encoder_layer_params, decoder_layer_params, embedding_params):
+    # TODO: walk the encoder, decoder, and embedding dicts and return a flat deduped list of tensors
+    
+    seen = set()          # 已加入的张量 id 集合
+    result = []           # 有序的输出列表
+
+    def add_from_dict(params_dict):
+        for tensor in params_dict.values():
+            if not isinstance(tensor, torch.Tensor):
+                continue                       # 跳过非张量（防御性）
+            if not tensor.requires_grad:
+                continue                       # 只收集可训练张量
+            tid = id(tensor)
+            if tid in seen:
+                continue                       # 已见过，跳过（处理 weight tying）
+            seen.add(tid)
+            result.append(tensor)
+
+    # 1. 所有 encoder 层（按顺序）
+    for layer_params in encoder_layer_params:
+        add_from_dict(layer_params)
+
+    # 2. 所有 decoder 层（按顺序）
+    for layer_params in decoder_layer_params:
+        add_from_dict(layer_params)
+
+    # 3. embedding / projection
+    add_from_dict(embedding_params)
+
+    return result
 
 # Step 56 - shift_targets_right_with_start_token (not yet solved)
 # TODO: implement
