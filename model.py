@@ -574,8 +574,57 @@ def apply_log_softmax_over_vocab(logits):
     
     return torch.log_softmax(logits, dim=-1)
 
-# Step 51 - run_transformer_forward (not yet solved)
-# TODO: implement
+# Step 51 - run_transformer_forward
+def run_transformer_forward(src_ids, tgt_ids, model_params, num_heads, pad_id):
+    # model_params keys: src_embedding, tgt_embedding, encoder_layers, decoder_layers, output_projection
+    # TODO: embed src with src_embedding and tgt with tgt_embedding, add PE, build masks,
+    #       run encoder/decoder, project to log probs.
+    
+    # 1. 取参数
+    src_embedding = model_params["src_embedding"]       # (V, d_model)
+    tgt_embedding = model_params["tgt_embedding"]       # (V, d_model)
+    encoder_layers = model_params["encoder_layers"]     # list of dicts
+    decoder_layers = model_params["decoder_layers"]     # list of dicts
+    output_projection = model_params["output_projection"]  # (V, d_model)
+
+    # 2. d_model 从 embedding 宽度读取
+    d_model = src_embedding.shape[-1]
+
+    B, S = src_ids.shape
+    _, T = tgt_ids.shape
+
+
+    # 3. 源端：embedding lookup → 缩放 → 加位置编码
+    src_emb = src_embedding[src_ids]
+    src_emb = scale_embeddings_by_sqrt_d_model(src_emb, d_model)
+    src_pe = build_sinusoidal_positional_encoding(S, d_model)
+    src_emb = add_positional_encoding_to_embeddings(src_emb, src_pe)
+
+    # 4. 目标端：embedding lookup → 缩放 → 加位置编码
+    tgt_emb = tgt_embedding[tgt_ids]
+    tgt_emb = scale_embeddings_by_sqrt_d_model(tgt_emb, d_model)
+    tgt_pe = build_sinusoidal_positional_encoding(T, d_model)
+    tgt_emb = add_positional_encoding_to_embeddings(tgt_emb, tgt_pe)
+
+    
+    # 5. 构建 masks
+    src_mask = build_padding_mask(src_ids, pad_id)
+    tgt_padding_mask = build_padding_mask(tgt_ids, pad_id)
+    causal_mask = build_causal_mask(T)
+    tgt_mask = combine_padding_and_causal_masks(tgt_padding_mask, causal_mask)
+
+    # 6. encoder stack
+    encoder_output = stack_encoder_layers(src_emb, encoder_layers, num_heads, src_mask)
+
+    # 7. decoder stack
+    decoder_output = stack_decoder_layers(tgt_emb, encoder_output, decoder_layers, num_heads, src_mask, tgt_mask)
+
+    # 8. 输出投影 + log softmax
+    logits = apply_final_output_projection(decoder_output, output_projection,None)
+
+    log_prob = apply_log_softmax_over_vocab(logits)
+
+    return log_prob
 
 # Step 52 - init_encoder_layer_parameters (not yet solved)
 # TODO: implement
