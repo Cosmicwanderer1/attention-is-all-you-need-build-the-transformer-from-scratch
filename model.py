@@ -788,8 +788,18 @@ def shift_targets_right_with_start_token(target_ids, start_token_id):
     shifted = torch.cat([start_col, target_ids[:, :-1]], dim=1)
     return shifted
 
-# Step 57 - compute_noam_learning_rate (not yet solved)
-# TODO: implement
+# Step 57 - compute_noam_learning_rate
+def compute_noam_learning_rate(step, d_model, warmup_steps):
+    # TODO: return the Noam warmup learning rate for the given step.
+    
+
+
+    scale = d_model ** -0.5
+    warmup_factor = step * (warmup_steps ** -1.5)
+
+    decay_factor = step ** -0.5
+
+    return float(scale * min(warmup_factor, decay_factor))
 
 # Step 58 - build_uniform_smoothing_distribution (not yet solved)
 # TODO: implement
