@@ -791,6 +791,10 @@ def shift_targets_right_with_start_token(target_ids, start_token_id):
 # Step 57 - compute_noam_learning_rate
 def compute_noam_learning_rate(step, d_model, warmup_steps):
     # TODO: return the Noam warmup learning rate for the given step.
+    """
+    lr = d_model^-0.5 * min(step^-0.5, step * warmup_steps^-1.5)
+    Linear warmup until `warmup_steps`, then inverse-sqrt decay.
+    """
     
 
 
