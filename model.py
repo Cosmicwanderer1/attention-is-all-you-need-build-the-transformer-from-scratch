@@ -951,8 +951,46 @@ def compute_adam_parameter_update(m_hat, v_hat, learning_rate, epsilon):
 
     return delta
 
-# Step 69 - apply_adam_step_to_all_parameters (not yet solved)
-# TODO: implement
+# Step 69 - apply_adam_step_to_all_parameters
+import torch
+
+def apply_adam_step_to_all_parameters(parameter_list, optimizer_state, learning_rate, beta1=0.9, beta2=0.98, epsilon=1e-9):
+    # TODO: increment t, then for each param with a grad update m, v, bias-correct, and subtract delta in place.
+    
+    # 1. 步数先加 1，偏差校正要用到 t，不是 t-1
+    optimizer_state['t'] += 1
+    t = optimizer_state['t']
+
+
+    # 2. 所有写回参数/缓冲区的操作都不进计算图
+    with torch.no_grad():
+        for i, p in enumerate(parameter_list):
+            # 2a. 跳过本 batch 未使用的参数：不更新 m/v，也不动参数
+            if p.grad is None:
+                continue
+
+            grad = p.grad
+
+            # 2b. 更新 running moments
+            m_t = update_adam_first_moment(optimizer_state['m'][i], grad, beta1)
+            v_t = update_adam_second_moment(optimizer_state['v'][i], grad, beta2)
+
+            # 2c. 原地写回 state，保持缓冲区对象 identity 不变
+            optimizer_state['m'][i].copy_(m_t)
+            optimizer_state['v'][i].copy_(v_t)
+
+            # 2d. 偏差校正
+            m_hat, v_hat = apply_adam_bias_correction(m_t, v_t, beta1, beta2, t)
+
+            # 2e. 计算 per-parameter delta
+            delta = compute_adam_parameter_update(
+                m_hat, v_hat, learning_rate, epsilon
+            )
+
+            # 2f. 原地更新参数
+            p.data.sub_(delta)
+
+    return optimizer_state
 
 # Step 70 - zero_all_parameter_gradients (not yet solved)
 # TODO: implement
