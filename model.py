@@ -897,8 +897,8 @@ def initialize_adam_optimizer_state(parameter_list):
     # TODO: allocate zero buffers for first and second moments, plus step counter
     
 
-    m = [torch.zeros_like(p, requires_grad=False) for p in params]
-    v = [torch.zeros_like(p, requires_grad=False) for p in params]
+    m = [torch.zeros_like(p, requires_grad=False) for p in parameter_list]
+    v = [torch.zeros_like(p, requires_grad=False) for p in parameter_list]
 
     return {'m': m, 'v': v, 't': 0}
 
