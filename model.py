@@ -1076,8 +1076,40 @@ def run_training_step_with_backprop(src_batch, tgt_batch, parameter_list, model_
     # 7. 返回 Python float 用于日志
     return float(loss.detach().item())
 
-# Step 73 - run_training_loop_for_steps (not yet solved)
-# TODO: implement
+# Step 73 - run_training_loop_for_steps
+def run_training_loop_for_steps(batches, parameter_list, model_params, optimizer_state, num_steps, config):
+    """Run num_steps training iterations, cycling through batches, and return per-step losses."""
+    # TODO: iterate for num_steps steps, calling run_training_step_with_backprop each time
+    
+    """
+    外层训练驱动：跑 num_steps 步，每步调用一次训练内胆，收集 loss。
+
+    Args:
+        batches:         可迭代的 (src_batch, tgt_batch) 序列，或 list
+        parameter_list:  参数列表
+        model_params:    模型参数 dict
+        optimizer_state: Adam 状态 dict
+        num_steps:       要跑的步数
+        config:          训练配置
+
+    Returns:
+        losses: list[float]，长度 num_steps
+    """
+    losses = []
+    step_number = 1
+
+    while len(losses) < num_steps:
+        for src_batch, tgt_batch in batches:
+            loss = run_training_step_with_backprop(
+                src_batch, tgt_batch, parameter_list, model_params,
+                optimizer_state, step_number, config,
+            )
+            losses.append(loss)
+            step_number += 1
+            if len(losses) >= num_steps:
+                break
+
+    return losses
 
 # Step 74 - pick_next_token_by_argmax (not yet solved)
 # TODO: implement
