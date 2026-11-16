@@ -1001,8 +1001,41 @@ def zero_all_parameter_gradients(parameter_list):
     for p in parameter_list:
         p.grad = None
 
-# Step 71 - compute_batch_training_loss (not yet solved)
-# TODO: implement
+# Step 71 - compute_batch_training_loss
+def compute_batch_training_loss(src_batch, tgt_batch, model_params, config):
+    """One teacher-forced forward pass -> label-smoothed KL loss averaged over non-pad tokens.
+
+    model_params (read only; the same dict run_transformer_forward takes):
+      src_embedding, tgt_embedding, output_projection, encoder_layers, decoder_layers
+    config keys:
+      pad_id, start_id, vocab_size, smoothing, num_heads
+    """
+    # TODO: shift targets right, run the forward pass, build smoothed targets, and average the KL loss over non-pad tokens.
+    
+
+    pad_id = config["pad_id"]
+    start_id = config["start_id"]
+    vocab_size = config["vocab_size"]
+    epsilon   = config["smoothing"]
+    num_heads = config["num_heads"]
+
+
+    tgt_in = shift_targets_right_with_start_token(tgt_batch, start_id)
+
+    log_prob = run_transformer_forward(src_batch, tgt_in, model_params, num_heads, pad_id)
+
+    shape = log_prob.shape
+    
+    p_smooth = build_uniform_smoothing_distribution(shape, vocab_size, epsilon)
+    p_smooth = set_confidence_on_gold_tokens(p_smooth, tgt_batch, 1.0 - epsilon)
+    p_smooth = zero_pad_column_and_pad_token_rows(p_smooth, tgt_batch, pad_id)
+
+
+    # 4. 交叉熵求和 + 按非 pad token 平均
+    total_loss = compute_label_smoothed_kl_loss(log_prob, p_smooth)
+    loss = average_loss_over_non_pad_tokens(total_loss, tgt_batch, pad_id)
+
+    return loss
 
 # Step 72 - run_training_step_with_backprop (not yet solved)
 # TODO: implement
